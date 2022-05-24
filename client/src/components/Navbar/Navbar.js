@@ -21,7 +21,6 @@ const Navbar = () => {
 
         setUser(null);
         navigate('/');
-        window.location.reload();
     }
 
     useEffect(() => {
