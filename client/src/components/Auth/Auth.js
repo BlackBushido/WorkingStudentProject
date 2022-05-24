@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Avatar, Button, Paper, Grid, Typography, Container} from "@material-ui/core";
-import { useGoogleLogin, GoogleLogin } from '@react-oauth/google';
+import {GoogleLogin} from "react-google-login";
 import {useDispatch} from "react-redux";
 import {useNavigate} from 'react-router-dom';
 import Icon from './icon';
@@ -8,6 +8,9 @@ import useStyles from './styles';
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Input from './Input';
 import {signIn, signUp} from '../../actions/auth'
+import {gapi} from "gapi-script";
+
+
 
 const initialState = {firstName: '', lastName: '', email: '', password: '', confirmPassword: ''}
 
@@ -19,6 +22,15 @@ const Auth = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    useEffect( () => {
+        function start() {
+            gapi.client.init({
+                clientId: "97723876179-lt0hkkmu6sg1bejjc5p8uve2fgit9c39.apps.googleusercontent.com",
+                scope: "",
+            })
+        }
+        gapi.load('client:auth2', start);
+    })
 
     const handleShowPassword = () => setShowPassword((prevShowPassword) => !prevShowPassword);
 
@@ -45,9 +57,9 @@ const Auth = () => {
         console.log(error);
         console.log("Google Sign In was unsuccessful. Try Again Later");
     };
-    const googleSuccess = (res) => {
+    const googleSuccess = async (res) => {
         const result = res?.profileObj;
-        const token = res?.access_token;
+        const token = res?.tokenId;
 
         try{
             dispatch({type: 'AUTH', data: {result, token}});
@@ -57,13 +69,6 @@ const Auth = () => {
             console.log(error);
         }
     };
-
-    const login = useGoogleLogin({
-        onSuccess:  googleSuccess,
-        onError: googleFailure,
-
-    });
-
 
 
     return(
@@ -78,8 +83,8 @@ const Auth = () => {
                         {
                             isSignUp && (
                                 <>
-                                    <Input name="firstName" label="First Name" handleChange={handleChange} autoFocus half></Input>
-                                    <Input name="lastName" label="Last Name" handleChange={handleChange} half></Input>
+                                    <Input name="firstName" label="First Name" handleChange={handleChange} autoFocus half/>
+                                    <Input name="lastName" label="Last Name" handleChange={handleChange} half/>
                                 </>
                             )
                         }
@@ -90,10 +95,17 @@ const Auth = () => {
                     <Button type="submit" fullWidth variant="contained" color="primary" className={classes.submit} >
                         {isSignUp ? 'Sign Up' : 'Sign In'}
                     </Button>
-                    <Button className={classes.googleButton} color='primary' fullWidth onClick={ () => login()} startIcon={<Icon />} variant="contained">
-                        Google Sign In
-                    </Button>
-                    {/*<GoogleLogin onSuccess={googleSuccess} />*/}
+                    <GoogleLogin
+                        clientId="97723876179-lt0hkkmu6sg1bejjc5p8uve2fgit9c39.apps.googleusercontent.com"
+                        render={(renderProps) => (
+                            <Button className={classes.googleButton} color='primary' fullWidth onClick={renderProps.onClick} disabled={renderProps.disabled} startIcon={<Icon/>} variant='contained' >
+                                Google Sign In
+                            </Button>
+                        )}
+                        onSuccess={googleSuccess}
+                        onFailure={googleFailure}
+                        cookiePolicy={'single_host_origin'}
+                    />
                     <Grid container justifyContent="flex-end">
                         <Grid item>
                             <Button onClick={switchMode}>

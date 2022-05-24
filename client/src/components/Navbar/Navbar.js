@@ -4,27 +4,36 @@ import {useDispatch} from "react-redux";
 import {useNavigate, useLocation} from "react-router-dom";
 import {Link} from 'react-router-dom';
 import workingstudent from "../../images/workingstudent.png";
+import decode from 'jwt-decode'
 import useStyles from './styles';
 
 const Navbar = () => {
     const classes = useStyles();
-    //const [user, setUser] = useState(JSON.parse(localStorage.getItem('profile')));
-    const [user, setUser] = useState(null);
-    const dispatch = useDispatch()
-    const navigate = useNavigate()
-    const location = useLocation()
+    const [user, setUser] = useState(JSON.parse(localStorage.getItem('profile')));
+
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const location = useLocation();
 
     const logout = () => {
         dispatch({type: 'LOGOUT'})
 
-        navigate('/')
+
         setUser(null);
+        navigate('/');
+        window.location.reload();
     }
 
     useEffect(() => {
         const token = user?.token;
 
-        //setUser(JSON.parse(localStorage.getItem('profile')));
+        if(token) {
+            const decodedToken = decode(token);
+
+            if(decodedToken.exp * 1000 < new Date().getTime()) logout();
+        }
+
+        setUser(JSON.parse(localStorage.getItem('profile')));
     },[location]);
 
     return (
