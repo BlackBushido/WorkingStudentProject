@@ -12,6 +12,7 @@
     "@testing-library/user-event": "^7.1.2",
     "axios": "^0.19.2",
     "gapi-script": "^1.2.0",
+    "material-ui-chip-input": "^2.0.0-beta.2",
     "moment": "^2.27.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
@@ -45,6 +46,7 @@
     ]
   },
   "devDependencies": {
+    "@material-ui/lab": "^4.0.0-alpha.61",
     "eslint-config-airbnb": "^18.2.0",
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-jsx-a11y": "^6.3.1",

@@ -1,9 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {Container, Grid, Grow} from "@material-ui/core";
+import {Container, Grid, Grow, Paper, AppBar, TextField, Button} from "@material-ui/core";
 import Posts from "../Posts/Posts";
 import Form from "../Form/Form";
 import {useDispatch} from "react-redux";
+import {Navigate, useLocation} from "react-router-dom";
+import ChipInput from 'material-ui-chip-input'
 import {getPosts} from "../../actions/posts";
+import Pagination from "../Pagination";
 
 const Home = () => {
     const [currentId, setCurrentId] = useState(null);
@@ -23,6 +26,9 @@ const Home = () => {
                     </Grid>
                     <Grid item xs={12} sm={4}>
                         <Form currentId={currentId} setCurrentId={setCurrentId}/>
+                        <Paper  elevation={6}>
+                            <Pagination/>
+                        </Paper>
                     </Grid>
                 </Grid>
             </Container>
