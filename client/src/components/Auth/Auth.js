@@ -16,9 +16,11 @@ const initialState = {firstName: '', lastName: '', email: '', password: '', conf
 
 const Auth = () => {
     const classes = useStyles();
+    // const [formErrors, setFormErrors] = useState({});
     const [showPassword, setShowPassword] = useState(false);
     const [isSignUp, setIsSignUp] = useState(false);
     const [formData, setFormData] = useState(initialState)
+    // const [isSubmit, setIsSubmit] = useState(false);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -32,10 +34,23 @@ const Auth = () => {
         gapi.load('client:auth2', start);
     })
 
+
+
     const handleShowPassword = () => setShowPassword((prevShowPassword) => !prevShowPassword);
 
-    const handleSubmit = (e) => {
+    // const validate = async (values) => {
+    //     const errors = {}
+    //     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+    //
+    //     if(values.password !== values.confirmPassword)
+    //         errors.diffPassword = "Passwords are diffrent";
+    //
+    //     return errors;
+    // };
+
+    const handleSubmit = async (e) => {
         e.preventDefault()
+
 
         if(isSignUp){
             dispatch(signUp(formData, navigate))
@@ -71,6 +86,7 @@ const Auth = () => {
     };
 
 
+
     return(
         <Container component="main" maxWidth="xs">
             <Paper className={classes.paper} elevation={3}>
@@ -90,7 +106,7 @@ const Auth = () => {
                         }
                         <Input name="email" label="Email Address" handleChange={handleChange} type="email" />
                         <Input name="password" label="Password" handleChange={handleChange} type={showPassword ? "text" : "password"} handleShowPassword={handleShowPassword} />
-                        { isSignUp && <Input name="confirmPassword" label="Repeat Password" handleChange={handleChange} type="password"/> }
+                        { isSignUp && <><Input name="confirmPassword" label="Repeat Password" handleChange={handleChange} type="password"/> </> }
                     </Grid>
                     <Button type="submit" fullWidth variant="contained" color="primary" className={classes.submit} >
                         {isSignUp ? 'Sign Up' : 'Sign In'}
