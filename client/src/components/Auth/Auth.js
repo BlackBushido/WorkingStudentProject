@@ -16,11 +16,15 @@ const initialState = {firstName: '', lastName: '', email: '', password: '', conf
 
 const Auth = () => {
     const classes = useStyles();
-    // const [formErrors, setFormErrors] = useState({});
     const [showPassword, setShowPassword] = useState(false);
     const [isSignUp, setIsSignUp] = useState(false);
-    const [formData, setFormData] = useState(initialState)
-    // const [isSubmit, setIsSubmit] = useState(false);
+    const [formData, setFormData] = useState(initialState);
+    let isCorrect = true;
+    const [matchPass, setMatchPass] = useState(true);
+    const [emailVal, setEmailVal] = useState(true);
+    const [passwordVal, setPasswordVal] = useState(true);
+    const [firstNameVal, setFirstNameVal] = useState(true);
+    const [lastNameVal, setLastNameVal] = useState(true);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -35,28 +39,63 @@ const Auth = () => {
     })
 
 
-
     const handleShowPassword = () => setShowPassword((prevShowPassword) => !prevShowPassword);
 
-    // const validate = async (values) => {
-    //     const errors = {}
-    //     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-    //
-    //     if(values.password !== values.confirmPassword)
-    //         errors.diffPassword = "Passwords are diffrent";
-    //
-    //     return errors;
-    // };
+    const validate = (values) => {
 
-    const handleSubmit = async (e) => {
+        const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+        const regexPassword = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/i;
+        const regexName = /^[A-Za-z]{3,32}/i
+
+        setMatchPass(true);
+        setPasswordVal(true)
+        setEmailVal(true)
+        setFirstNameVal(true)
+        setLastNameVal(true)
+        isCorrect = true;
+
+        if(values.password !== values.confirmPassword)
+        {
+            setMatchPass(false);
+            isCorrect = false;
+        }
+        if(!regexPassword.test(values.password)) {
+            setPasswordVal(false)
+            isCorrect = false;
+        }
+        if(!regexEmail.test(values.email)) {
+            setEmailVal(false)
+            isCorrect = false;
+        }
+        if(!regexName.test(values.firstName)) {
+            setFirstNameVal(false)
+            isCorrect = false;
+        }
+        if(!regexName.test(values.lastName)) {
+            setLastNameVal(false)
+            isCorrect = false;
+        }
+
+
+    };
+
+    const handleSubmit = (e) => {
         e.preventDefault()
 
+        validate(formData);
 
-        if(isSignUp){
-            dispatch(signUp(formData, navigate))
-        } else {
-            dispatch(signIn(formData, navigate))
-        }
+            if(isSignUp){
+                if(isCorrect) {
+                    dispatch(signUp(formData, navigate))
+                    if (localStorage.key('user')) {
+                        window.alert(localStorage.getItem('user'))
+                        localStorage.removeItem('user')
+                    }
+                }
+            } else {
+                dispatch(signIn(formData, navigate))
+            }
+
     };
 
     const handleChange = (e) => {
@@ -99,14 +138,31 @@ const Auth = () => {
                         {
                             isSignUp && (
                                 <>
-                                    <Input name="firstName" label="First Name" handleChange={handleChange} autoFocus half/>
+                                    <Input name="firstName" label="First Name"  handleChange={handleChange} autoFocus half/>
+                                    {!firstNameVal &&(
+                                        <p style={{color: 'red', marginLeft: "10px"}}> This is not valid First Name format!</p>
+                                    )}
                                     <Input name="lastName" label="Last Name" handleChange={handleChange} half/>
+                                    {!lastNameVal &&(
+                                        <p style={{color: 'red', marginLeft: "10px"}}> This is not valid  Last Name format!</p>
+                                    )}
                                 </>
                             )
                         }
                         <Input name="email" label="Email Address" handleChange={handleChange} type="email" />
-                        <Input name="password" label="Password" handleChange={handleChange} type={showPassword ? "text" : "password"} handleShowPassword={handleShowPassword} />
-                        { isSignUp && <><Input name="confirmPassword" label="Repeat Password" handleChange={handleChange} type="password"/> </> }
+                        {!emailVal &&(
+                            <p style={{color: 'red', marginLeft: "10px"}}> This is not valid email format!</p>
+                        )}
+                        <Input name="password" label="Password"  handleChange={handleChange} type={showPassword ? "text" : "password"} handleShowPassword={handleShowPassword} />
+                        {!passwordVal&&isSignUp &&(
+                            <p style={{color: 'red', marginLeft: "10px"}}> Password must have minimum eight characters, at least one letter, one number and one special character</p>
+                        )}
+                        { isSignUp && <> <Input name="confirmPassword" label="Repeat Password" handleChange={handleChange} type="password"/>
+                            {!matchPass &&(
+                            <p style={{color: 'red', marginLeft: "10px"}}> Passwords are different!</p>
+                                )}
+                            </>
+                            }
                     </Grid>
                     <Button type="submit" fullWidth variant="contained" color="primary" className={classes.submit} >
                         {isSignUp ? 'Sign Up' : 'Sign In'}
